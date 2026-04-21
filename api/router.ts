@@ -1,14 +1,18 @@
 import { authRouter } from "./auth-router";
+import { projectRouter } from "./project-router";
+import { moduleRouter } from "./module-router";
+import { webhookRouter } from "./webhook-router";
+import { planRouter, subscriptionRouter } from "./plan-router";
 import { createRouter, publicQuery } from "./middleware";
 
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
   auth: authRouter,
-
-  // TODO: add feature routers here, e.g.
-  // todo: createRouter({
-  //   list: publicQuery.query(() => findTodos()),
-  // }),
+  project: projectRouter,
+  module: moduleRouter,
+  webhook: webhookRouter,
+  plan: planRouter,
+  subscription: subscriptionRouter,
 });
 
 export type AppRouter = typeof appRouter;
