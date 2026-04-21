@@ -1,6 +1,7 @@
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import type { User } from "@db/schema";
 import { authenticateRequest } from "./kimi/auth";
+import { authenticateGoogleRequest } from "./google-auth";
 
 export type TrpcContext = {
   req: Request;
@@ -15,7 +16,12 @@ export async function createContext(
   try {
     ctx.user = await authenticateRequest(opts.req.headers);
   } catch {
-    // Authentication is optional here
+    // Try Google auth fallback
+    try {
+      ctx.user = await authenticateGoogleRequest(opts.req.headers);
+    } catch {
+      // Authentication is optional here
+    }
   }
   return ctx;
 }

@@ -11,4 +11,5 @@ export const ErrorMessages = {
 export const Paths = {
   login: "/login",
   oauthCallback: "/api/oauth/callback",
+  googleOAuthCallback: "/api/oauth/google/callback",
 } as const;

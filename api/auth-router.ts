@@ -1,7 +1,8 @@
 import * as cookie from "cookie";
 import { Session } from "@contracts/constants";
 import { getSessionCookieOptions } from "./lib/cookies";
-import { createRouter, authedQuery } from "./middleware";
+import { createRouter, authedQuery, publicQuery } from "./middleware";
+import { getGoogleOAuthUrl } from "./google-auth";
 
 export const authRouter = createRouter({
   me: authedQuery.query((opts) => opts.ctx.user),
@@ -18,5 +19,8 @@ export const authRouter = createRouter({
       }),
     );
     return { success: true };
+  }),
+  googleUrl: publicQuery.query(({ ctx }) => {
+    return { url: getGoogleOAuthUrl(ctx.req.headers.get("origin") || "") };
   }),
 });

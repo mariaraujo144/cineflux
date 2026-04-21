@@ -12,10 +12,13 @@ import {
   index,
 } from "drizzle-orm/mysql-core";
 
-// ─── Users (já existente, mantido) ───
+// ─── Users (Kimi OAuth + Google OAuth) ───
 export const users = mysqlTable("users", {
   id: serial("id").primaryKey(),
   unionId: varchar("unionId", { length: 255 }).notNull().unique(),
+  googleId: varchar("googleId", { length: 255 }).unique(),
+  googleAccessToken: text("googleAccessToken"),
+  googleRefreshToken: text("googleRefreshToken"),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 320 }),
   avatar: text("avatar"),
@@ -26,7 +29,9 @@ export const users = mysqlTable("users", {
     .notNull()
     .$onUpdate(() => new Date()),
   lastSignInAt: timestamp("lastSignInAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  googleIdx: index("user_google_idx").on(table.googleId),
+}));
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
