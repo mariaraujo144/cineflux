@@ -122,7 +122,8 @@ export function createOAuthCallbackHandler() {
       return c.redirect("/", 302);
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
-      return c.json({ error: "OAuth callback failed" }, 500);
+      // Redirect back to login with error message instead of showing JSON error
+      return c.redirect("/login?error=oauth_failed", 302);
     }
   };
 }
