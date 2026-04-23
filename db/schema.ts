@@ -173,3 +173,61 @@ export const webhookLogs = mysqlTable("webhookLogs", {
 
 export type WebhookLog = typeof webhookLogs.$inferSelect;
 export type InsertWebhookLog = typeof webhookLogs.$inferInsert;
+
+// ─── Bob Configurations (configuração do bot por usuário) ───
+export const bobConfigs = mysqlTable("bobConfigs", {
+  id: serial("id").primaryKey(),
+  userId: bigint("userId", { mode: "number", unsigned: true }).notNull().unique(),
+  // Planilhas
+  workSheetId: varchar("workSheetId", { length: 255 }), // ID da planilha de Follow up de Tarefas
+  workSheetTab: varchar("workSheetTab", { length: 255 }).default("Follow up"),
+  personalSheetId: varchar("personalSheetId", { length: 255 }), // ID da planilha pessoal
+  personalSheetTab: varchar("personalSheetTab", { length: 255 }).default("Pessoal"),
+  scheduleSheetId: varchar("scheduleSheetId", { length: 255 }), // ID da planilha de cronograma
+  scheduleSheetTab: varchar("scheduleSheetTab", { length: 255 }).default("Cronograma"),
+  // Telegram
+  telegramChatId: varchar("telegramChatId", { length: 255 }).unique(),
+  telegramUsername: varchar("telegramUsername", { length: 255 }),
+  // Google tokens
+  googleAccessToken: text("googleAccessToken"),
+  googleRefreshToken: text("googleRefreshToken"),
+  googleTokenExpiry: timestamp("googleTokenExpiry"),
+  // Settings
+  morningBriefEnabled: boolean("morningBriefEnabled").default(false),
+  morningBriefTime: varchar("morningBriefTime", { length: 10 }).default("08:00"),
+  eveningBriefEnabled: boolean("eveningBriefEnabled").default(false),
+  eveningBriefTime: varchar("eveningBriefTime", { length: 10 }).default("20:00"),
+  pdfEnabled: boolean("pdfEnabled").default(false),
+  language: varchar("language", { length: 10 }).default("pt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => new Date()),
+}, (table) => ({
+  userIdx: index("bob_user_idx").on(table.userId),
+  chatIdx: index("bob_chat_idx").on(table.telegramChatId),
+}));
+
+export type BobConfig = typeof bobConfigs.$inferSelect;
+export type InsertBobConfig = typeof bobConfigs.$inferInsert;
+
+// ─── Bob Conversations (estado de conversa por chat) ───
+export const bobConversations = mysqlTable("bobConversations", {
+  id: serial("id").primaryKey(),
+  telegramChatId: varchar("telegramChatId", { length: 255 }).notNull(),
+  state: mysqlEnum("state", [
+    "idle",           // aguardando mensagem
+    "awaiting_job",   // aguardando nome do job
+    "awaiting_time",  // aguardando horário
+    "awaiting_meet",  // aguardando confirmação de link
+    "awaiting_guests",// aguardando e-mails de convidados
+    "awaiting_worksheet", // aguardando link da planilha de trabalho
+    "awaiting_personal_sheet", // aguardando link da planilha pessoal
+  ]).default("idle").notNull(),
+  context: json("context").$type<Record<string, any>>(), // dados temporários da conversa
+  lastMessageAt: timestamp("lastMessageAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  chatIdx: index("conv_chat_idx").on(table.telegramChatId),
+}));
+
+export type BobConversation = typeof bobConversations.$inferSelect;
+export type InsertBobConversation = typeof bobConversations.$inferInsert;

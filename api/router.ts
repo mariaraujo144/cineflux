@@ -3,6 +3,7 @@ import { projectRouter } from "./project-router";
 import { moduleRouter } from "./module-router";
 import { webhookRouter } from "./webhook-router";
 import { planRouter, subscriptionRouter } from "./plan-router";
+import { bobRouter } from "./bob-router";
 import { createRouter, publicQuery } from "./middleware";
 
 export const appRouter = createRouter({
@@ -13,6 +14,7 @@ export const appRouter = createRouter({
   webhook: webhookRouter,
   plan: planRouter,
   subscription: subscriptionRouter,
+  bob: bobRouter,
 });
 
 export type AppRouter = typeof appRouter;

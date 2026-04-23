@@ -18,4 +18,6 @@ export const env = {
   ownerUnionId: process.env.OWNER_UNION_ID ?? "",
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+  openaiApiKey: process.env.OPENAI_API_KEY ?? "",
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
 };

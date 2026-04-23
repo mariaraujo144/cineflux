@@ -7,6 +7,8 @@ import {
   projectModules,
   projectMembers,
   webhookLogs,
+  bobConfigs,
+  bobConversations,
 } from "./schema";
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -42,4 +44,15 @@ export const projectMembersRelations = relations(projectMembers, ({ one }) => ({
 
 export const webhookLogsRelations = relations(webhookLogs, ({ one }) => ({
   project: one(projects, { fields: [webhookLogs.projectId], references: [projects.id] }),
+}));
+
+export const bobConfigsRelations = relations(bobConfigs, ({ one }) => ({
+  user: one(users, { fields: [bobConfigs.userId], references: [users.id] }),
+}));
+
+export const bobConversationsRelations = relations(bobConversations, ({ one }) => ({
+  config: one(bobConfigs, {
+    fields: [bobConversations.telegramChatId],
+    references: [bobConfigs.telegramChatId],
+  }),
 }));

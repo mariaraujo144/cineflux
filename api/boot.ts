@@ -7,6 +7,7 @@ import { createContext } from "./context";
 import { env } from "./lib/env";
 import { createOAuthCallbackHandler } from "./kimi/auth";
 import { createGoogleOAuthCallbackHandler } from "./google-auth";
+import { handleTelegramWebhook } from "./bob-router";
 import { Paths } from "@contracts/constants";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
@@ -14,6 +15,14 @@ const app = new Hono<{ Bindings: HttpBindings }>();
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
 app.get(Paths.googleOAuthCallback, createGoogleOAuthCallbackHandler());
+
+// Webhook do Telegram para o Bob
+app.post("/api/telegram/webhook", async (c) => {
+  const body = await c.req.json();
+  await handleTelegramWebhook(body);
+  return c.json({ ok: true });
+});
+
 app.use("/api/trpc/*", async (c) => {
   return fetchRequestHandler({
     endpoint: "/api/trpc",
