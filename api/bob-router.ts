@@ -164,14 +164,14 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
     if (!config) {
       await sendTelegramMessage(
         chatId,
-        "Oi! Eu sou o Bob, seu assistente de producao.\n\n" +
+        "Oi! Eu sou o Bob, seu assistente de produção.\n\n" +
           "Para comecar, use o comando /start no dashboard do CineFlux e vincule sua conta do Telegram.\n\n" +
           "Ou digite /configurar para configurar manualmente.",
       );
       return;
     }
 
-    // 4. Verifica estado de conversa
+    // 4. Verifica estádo de conversa
     const conversation = await db.query.bobConversations.findFirst({
       where: eq(bobConversations.telegramChatId, chatIdStr),
     });
@@ -206,18 +206,18 @@ async function handleCommand(chatId: number, text: string, msg: TelegramMessage)
     case "/start":
       await sendTelegramMessage(
         chatId,
-        "🎬 Oi! Eu sou o Bob, seu assistente de producao.\n\n" +
+        "🎬 Oi! Eu sou o Bob, seu assistente de produção.\n\n" +
           "O que eu faco:\n" +
           "✅ Registro tarefas na sua planilha\n" +
           "✅ Crio eventos no seu calendario\n" +
           "✅ Transcrevo audios\n" +
-          "✅ Consulto suas pendencias\n\n" +
+          "✅ Consulto suas pendências\n\n" +
           "Comandos:\n" +
           "/configurar - Configurar planilhas\n" +
           "/tarefas - Ver tarefas do dia\n" +
-          "/pendencias - Ver pendencias\n" +
+          "/pendências - Ver pendências\n" +
           "/ajuda - Ajuda\n\n" +
-          "Me manda uma mensagem com uma tarefa que eu registro pra voce!",
+          "Me manda uma mensagem com uma tarefa que eu registro pra você!",
       );
 
       // Cria/atualiza config basica
@@ -227,7 +227,7 @@ async function handleCommand(chatId: number, text: string, msg: TelegramMessage)
 
       if (!existing && msg.from) {
         // Procura por usuario com esse telegramUsername
-        // Se nao achar, cria config sem userId (usuario vincula depois)
+        // Se não achar, cria config sem userId (usuario vincula depois)
         await db.insert(bobConfigs).values({
           telegramChatId: chatIdStr,
           telegramUsername: msg.from.username ?? msg.from.first_name,
@@ -239,7 +239,7 @@ async function handleCommand(chatId: number, text: string, msg: TelegramMessage)
     case "/configurar":
       await sendTelegramMessage(
         chatId,
-        "Configuracao do Bob:\n\n" +
+        "Configuração do Bob:\n\n" +
           "Para configurar suas planilhas, me envie:\n\n" +
           "1. Link da planilha de trabalho:\n" +
           "   /planilha TRABALHO [link]\n\n" +
@@ -294,7 +294,7 @@ async function handleCommand(chatId: number, text: string, msg: TelegramMessage)
     }
 
     case "/tarefas":
-    case "/pendencias": {
+    case "/pendências": {
       const config = await db.query.bobConfigs.findFirst({
         where: eq(bobConfigs.telegramChatId, chatIdStr),
       });
@@ -302,7 +302,7 @@ async function handleCommand(chatId: number, text: string, msg: TelegramMessage)
       if (!config?.workSheetId || !config.googleAccessToken) {
         await sendTelegramMessage(
           chatId,
-          "Planilha nao configurada ou Google nao conectado.\n" +
+          "Planilha não configurada ou Google não conectado.\n" +
             "Use /configurar e depois conecte sua conta Google no dashboard.",
         );
         return;
@@ -321,14 +321,14 @@ async function handleCommand(chatId: number, text: string, msg: TelegramMessage)
           return;
         }
 
-        // Filtra tarefas nao concluidas (exclui header)
+        // Filtra tarefas não concluidas (exclui header)
         const pending = tasks.slice(1).filter((row) => {
           const status = (row[3] ?? "").toLowerCase().trim();
           return status !== "concluido" && status !== "done" && status !== "ok";
         });
 
         if (pending.length === 0) {
-          await sendTelegramMessage(chatId, "🎉 Nenhuma pendencia! Todas as tarefas estao concluidas.");
+          await sendTelegramMessage(chatId, "🎉 Nenhuma pendência! Todas as tarefas estão concluidas.");
           return;
         }
 
@@ -348,7 +348,7 @@ async function handleCommand(chatId: number, text: string, msg: TelegramMessage)
         await sendTelegramMessage(chatId, msg);
       } catch (error) {
         console.error("[Bob] Error reading tasks:", error);
-        await sendTelegramMessage(chatId, "Erro ao ler planilha. Verifique se a planilha esta compartilhada e se o Google esta conectado.");
+        await sendTelegramMessage(chatId, "Erro ao ler planilha. Verifique se a planilha está compartilhada e se o Google está conectado.");
       }
       break;
     }
@@ -360,8 +360,8 @@ async function handleCommand(chatId: number, text: string, msg: TelegramMessage)
           "/start — Iniciar\n" +
           "/configurar — Configurar planilhas\n" +
           "/planilha TIPO LINK — Salvar planilha\n" +
-          "/tarefas — Ver pendencias\n" +
-          "/pendencias — Ver pendencias\n" +
+          "/tarefas — Ver pendências\n" +
+          "/pendências — Ver pendências\n" +
           "/ajuda — Este menu\n\n" +
           "Exemplos de mensagens que entendo:\n" +
           "• shooting board do Habibs pra amanha\n" +
@@ -377,7 +377,7 @@ async function handleCommand(chatId: number, text: string, msg: TelegramMessage)
   }
 }
 
-// ─── Handler de estados de conversa ───
+// ─── Handler de estádos de conversa ───
 async function handleConversationState(
   chatId: number,
   text: string,
@@ -447,12 +447,12 @@ async function executeAction(
   const db = getDb();
   const chatIdStr = String(chatId);
 
-  // Se precisa de job e nao tem
+  // Se precisa de job e não tem
   if (classification.precisa_job && !classification.job) {
     const question = await generateClarificationQuestion("job", { message: originalText });
     await sendTelegramMessage(chatId, question);
 
-    // Salva estado de conversa
+    // Salva estádo de conversa
     await db
       .insert(bobConversations)
       .values({
@@ -488,7 +488,7 @@ async function executeAction(
     }
 
     case "config": {
-      await sendTelegramMessage(chatId, "Configuracao recebida! Use /configurar para mais opcoes.");
+      await sendTelegramMessage(chatId, "Configuração recebida! Use /configurar para mais opcoes.");
       break;
     }
 
@@ -510,8 +510,8 @@ async function handleTaskAction(chatId: number, classification: any, config: any
     await sendTelegramMessage(
       chatId,
       isPersonal
-        ? "Planilha pessoal nao configurada. Use /configurar."
-        : "Planilha de trabalho nao configurada. Use /configurar.",
+        ? "Planilha pessoal não configurada. Use /configurar."
+        : "Planilha de trabalho não configurada. Use /configurar.",
     );
     return;
   }
@@ -519,7 +519,7 @@ async function handleTaskAction(chatId: number, classification: any, config: any
   if (!config.googleAccessToken) {
     await sendTelegramMessage(
       chatId,
-      "Conta Google nao conectada.\nConecte no dashboard do CineFlux primeiro.",
+      "Conta Google não conectada.\nConecte no dashboard do CineFlux primeiro.",
     );
     return;
   }
@@ -620,7 +620,7 @@ async function handleConsultaAction(chatId: number, classification: any, config:
   const consultaTipo = classification.consulta_tipo;
 
   if (!config.workSheetId || !config.googleAccessToken) {
-    await sendTelegramMessage(chatId, "Planilha nao configurada. Use /configurar.");
+    await sendTelegramMessage(chatId, "Planilha não configurada. Use /configurar.");
     return;
   }
 
@@ -641,14 +641,14 @@ async function handleConsultaAction(chatId: number, classification: any, config:
 
     switch (consultaTipo) {
       case "tarefas":
-      case "pendencias": {
+      case "pendências": {
         const pending = allTasks.filter((row) => {
           const status = (row[3] ?? "").toLowerCase().trim();
           return status !== "concluido" && status !== "done" && status !== "ok";
         });
 
         if (pending.length === 0) {
-          await sendTelegramMessage(chatId, "🎉 Nenhuma pendencia!");
+          await sendTelegramMessage(chatId, "🎉 Nenhuma pendência!");
           return;
         }
 
@@ -683,7 +683,7 @@ async function handleConsultaAction(chatId: number, classification: any, config:
           const status = (row[3] ?? "").toLowerCase().trim();
           return status !== "concluido" && status !== "done";
         });
-        await sendTelegramMessage(chatId, `Voce tem ${pending.length} pendencias de ${allTasks.length} tarefas totais.\nUse /tarefas para ver a lista completa.`);
+        await sendTelegramMessage(chatId, `Você tem ${pending.length} pendências de ${allTasks.length} tarefas totais.\nUse /tarefas para ver a lista completa.`);
       }
     }
   } catch (error) {

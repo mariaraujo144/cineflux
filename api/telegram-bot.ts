@@ -17,10 +17,12 @@ export async function sendTelegramMessage(
 
   const response = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
     body: JSON.stringify({
       chat_id: chatId,
-      text: text.substring(0, 4096),
+      text: text.normalize("NFC").substring(0, 4096),
       reply_to_message_id: options?.replyToMessageId,
       parse_mode: options?.parseMode,
     }),
@@ -45,10 +47,12 @@ export async function sendTelegramInlineKeyboard(
 
   const response = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
     body: JSON.stringify({
       chat_id: chatId,
-      text: text.substring(0, 4096),
+      text: text.normalize("NFC").substring(0, 4096),
       reply_markup: { inline_keyboard: buttons },
     }),
   });
