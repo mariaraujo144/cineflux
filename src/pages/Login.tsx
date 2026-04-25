@@ -21,7 +21,7 @@ function getGoogleOAuthUrl() {
   const redirectUri = `${window.location.origin}/api/oauth/google/callback`;
   const state = btoa(redirectUri);
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-  url.searchParams.set("client_id", "543590983987-tbirjrim25mpa5r3k7pk0b2nojdfbgni.apps.googleusercontent.com");
+  url.searchParams.set("client_id", "543590983987-rnhc9471232ud45mq1q6t3hcvs6updt6.apps.googleusercontent.com");
   url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("response_type", "code");
   url.searchParams.set("scope", "openid email profile https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/drive.file");
