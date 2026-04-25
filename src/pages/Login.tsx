@@ -21,7 +21,7 @@ function getGoogleOAuthUrl() {
   const redirectUri = `${window.location.origin}/api/oauth/google/callback`;
   const state = btoa(redirectUri);
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-  url.searchParams.set("client_id", "543590983987-tbirjrjm25mpa5r3k7pk0b2noijdfgbni.apps.googleusercontent.com");
+  url.searchParams.set("client_id", "543590983987-tbirjrim25mpa5r3k7pk0b2nojdfbgni.apps.googleusercontent.com");
   url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("response_type", "code");
   url.searchParams.set("scope", "openid email profile https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/drive.file");
@@ -44,12 +44,12 @@ export default function Login() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle>Bem-vindo ao CineFlux</CardTitle>
-          <p className="text-sm text-muted-foreground">Faca login para gerenciar seus jobs</p>
+          <p className="text-sm text-muted-foreground">Faça login para gerenciar seus jobs</p>
         </CardHeader>
         <CardContent className="space-y-4">
           {oauthError && (
             <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
-              Erro na autenticacao ({oauthError}). Tente novamente.
+              Erro na autenticação ({oauthError}). Tente novamente.
             </div>
           )}
           <Button className="w-full" size="lg" variant="outline" onClick={() => window.location.href = getGoogleOAuthUrl()}>
@@ -61,7 +61,7 @@ export default function Login() {
             Entrar com Kimi
           </Button>
           <p className="text-xs text-muted-foreground text-center">
-            Login com Google permite acesso ao Google Workspace.
+            Login com Google permite acesso ao Google Workspace (Drive, Sheets, Calendar).
           </p>
         </CardContent>
       </Card>
