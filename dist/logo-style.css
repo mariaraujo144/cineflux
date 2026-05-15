@@ -1,0 +1,54 @@
+/* CineFlux Logo v30 */
+
+/* Esconde o primeiro div dentro do primeiro link do header (quadrado roxo) */
+header > div > div > a:first-child > div:first-child {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  clip: rect(0,0,0,0) !important;
+}
+
+/* Esconde spans dentro do primeiro link */
+header > div > div > a:first-child > span {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  font-size: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Esconde SVGs dentro do primeiro link */
+header > div > div > a:first-child svg,
+header > div > div > a:first-child > div svg {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Configura o primeiro link */
+header > div > div > a:first-child {
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  gap: 0 !important;
+}
+
+/* Adiciona logo PNG */
+header > div > div > a:first-child::before {
+  content: '' !important;
+  display: inline-block !important;
+  width: 130px !important;
+  height: 32px !important;
+  background-image: url('/cineflux_logo.png?v=30') !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: left center !important;
+  flex-shrink: 0 !important;
+}

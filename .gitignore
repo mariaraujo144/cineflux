@@ -10,3 +10,4 @@ dist-old-*/
 server-v2.cjs
 vitrine-backend.js
 /tmp
+.config/

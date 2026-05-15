@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineFlux — Meus Jobs</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F5F5F7; color: #1D1D1F; min-height: 100vh; }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: inherit; }
+.app { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: #fff; border-right: 1px solid #E5E5EA; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
+.sidebar-header { padding: 24px 20px; border-bottom: 1px solid #E5E5EA; }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: #1D1D1F; }
+.sidebar-logo svg { width: 32px; height: 32px; }
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; font-size: 14px; font-weight: 500; color: #6E6E73; cursor: pointer; transition: all 0.2s; margin-bottom: 2px; }
+.nav-item:hover { background: #F5F5F7; color: #1D1D1F; }
+.nav-item.active { background: #1D1D1F; color: #fff; }
+.nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+.nav-section { font-size: 11px; font-weight: 600; color: #86868B; text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 14px 8px; }
+.sidebar-footer { padding: 16px; border-top: 1px solid #E5E5EA; }
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #E5E5EA; }
+.user-name { font-size: 13px; font-weight: 600; color: #1D1D1F; }
+.user-email { font-size: 11px; color: #86868B; }
+.main { flex: 1; margin-left: 260px; padding: 32px 40px; max-width: 1200px; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+.page-title { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+.page-subtitle { font-size: 14px; color: #86868B; margin-top: 4px; }
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: #1D1D1F; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+.btn-primary:hover { background: #000; transform: translateY(-1px); }
+.btn-secondary { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: #fff; color: #1D1D1F; border: 1px solid #D2D2D7; border-radius: 10px; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+.btn-secondary:hover { background: #F5F5F7; }
+.btn-danger { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: #FFF5F5; color: #DC2626; border: 1px solid #FECACA; border-radius: 8px; font-size: 12px; font-weight: 500; }
+.btn-danger:hover { background: #FEE2E2; }
+.btn-small { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+.filters { display: flex; gap: 8px; margin-bottom: 24px; align-items: center; }
+.filter-chip { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: 1px solid #D2D2D7; background: #fff; color: #6E6E73; }
+.filter-chip:hover { border-color: #1D1D1F; color: #1D1D1F; }
+.filter-chip.active { background: #1D1D1F; color: #fff; border-color: #1D1D1F; }
+.jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+.job-card { background: #fff; border-radius: 16px; border: 1px solid #E5E5EA; padding: 24px; cursor: pointer; transition: all 0.25s; position: relative; }
+.job-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.08); transform: translateY(-2px); border-color: #D2D2D7; }
+.job-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.job-type-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+.job-type-filme { background: #EDE9FE; color: #6D28D9; }
+.job-type-serie { background: #DBEAFE; color: #1E40AF; }
+.job-type-publicidade { background: #FCE7F3; color: #9D174D; }
+.job-type-corporativo { background: #D1FAE5; color: #065F46; }
+.job-type-musical { background: #FEF3C7; color: #92400E; }
+.job-type-documentario { background: #E0F2FE; color: #0C4A6E; }
+.job-type-evento { background: #FFEDD5; color: #9A3412; }
+.job-type-default { background: #F3F4F6; color: #4B5563; }
+.job-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.status-em_andamento .status-dot { background: #10B981; }
+.status-em_andamento { color: #059669; }
+.status-concluido .status-dot { background: #6B7280; }
+.status-concluido { color: #6B7280; }
+.status-arquivado .status-dot { background: #F59E0B; }
+.status-arquivado { color: #D97706; }
+.job-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+.job-client { font-size: 13px; color: #86868B; margin-bottom: 12px; }
+.job-description { font-size: 13px; color: #6E6E73; line-height: 1.5; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.job-meta { display: flex; gap: 16px; font-size: 12px; color: #86868B; }
+.job-meta-item { display: flex; align-items: center; gap: 5px; }
+.job-meta-item svg { width: 14px; height: 14px; }
+.job-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #F0F0F0; }
+.milestones { display: flex; gap: 14px; margin-top: 14px; padding: 12px 0 4px; border-top: 1px solid #F5F5F7; }
+.milestone { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.milestone-dot { width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid; flex-shrink: 0; }
+.milestone-label { font-size: 9px; font-weight: 600; color: #B0B0B5; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; line-height: 1.2; max-width: 60px; }
+.milestone-date { font-size: 10px; font-weight: 500; color: #8E8E93; margin-top: -2px; }
+.milestone-ppm .milestone-dot { background: #FEE2E2; border-color: #EF4444; }
+.milestone-ppm .milestone-label { color: #DC2626; }
+.milestone-filmagem .milestone-dot { background: #FEF3C7; border-color: #F59E0B; }
+.milestone-filmagem .milestone-label { color: #D97706; }
+.milestone-online .milestone-dot { background: #D1FAE5; border-color: #10B981; }
+.milestone-online .milestone-label { color: #059669; }
+.milestone-empty .milestone-dot { background: #F5F5F7; border-color: #D2D2D7; }
+.milestone-empty .milestone-label { color: #C7C7CC; }
+.milestone-empty .milestone-date { color: #D2D2D7; }
+.new-job-card { background: #fff; border-radius: 16px; border: 2px dashed #D2D2D7; padding: 40px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; min-height: 240px; }
+.new-job-card:hover { border-color: #1D1D1F; background: #FAFAFA; }
+.new-job-icon { width: 48px; height: 48px; border-radius: 14px; background: #F5F5F7; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.new-job-text { font-size: 14px; font-weight: 600; color: #6E6E73; }
+.empty-state { text-align: center; padding: 80px 40px; background: #fff; border-radius: 16px; border: 1px solid #E5E5EA; }
+.empty-state-icon { width: 64px; height: 64px; margin: 0 auto 20px; background: #F5F5F7; border-radius: 20px; display: flex; align-items: center; justify-content: center; }
+.empty-state-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.empty-state-text { font-size: 14px; color: #86868B; margin-bottom: 24px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.2s; }
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal { background: #fff; border-radius: 20px; width: 90%; max-width: 560px; max-height: 90vh; overflow-y: auto; transform: translateY(20px) scale(0.96); transition: all 0.25s; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal-overlay.active .modal { transform: translateY(0) scale(1); }
+.modal-header { padding: 24px 28px; border-bottom: 1px solid #E5E5EA; display: flex; justify-content: space-between; align-items: center; }
+.modal-title { font-size: 20px; font-weight: 700; }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: #F5F5F7; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #6E6E73; transition: all 0.2s; }
+.modal-close:hover { background: #E5E5EA; color: #1D1D1F; }
+.modal-body { padding: 24px 28px; }
+.modal-footer { padding: 20px 28px; border-top: 1px solid #E5E5EA; display: flex; justify-content: flex-end; gap: 10px; }
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 13px; font-weight: 600; color: #1D1D1F; margin-bottom: 6px; }
+.form-label span { color: #86868B; font-weight: 400; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 10px 14px; border: 1px solid #D2D2D7; border-radius: 10px; font-size: 14px; font-family: inherit; transition: all 0.2s; background: #fff; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #1D1D1F; box-shadow: 0 0 0 3px rgba(29,29,31,0.08); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.job-detail { display: none; }
+.job-detail.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.detail-header { background: #fff; border-radius: 16px; border: 1px solid #E5E5EA; padding: 28px; margin-bottom: 24px; }
+.detail-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #86868B; cursor: pointer; margin-bottom: 16px; transition: color 0.2s; }
+.detail-back:hover { color: #1D1D1F; }
+.detail-title-row { display: flex; justify-content: space-between; align-items: flex-start; }
+.detail-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.detail-meta { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: #6E6E73; }
+.detail-meta-item { display: flex; align-items: center; gap: 6px; }
+.section { background: #fff; border-radius: 16px; border: 1px solid #E5E5EA; padding: 24px; margin-bottom: 20px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.section-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.section-title svg { width: 22px; height: 22px; }
+.section-desc { font-size: 13px; color: #86868B; margin-top: 2px; }
+.briefing-status { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 12px; background: #F9FAFB; border: 1px solid #E5E5EA; }
+.briefing-status.complete { background: #ECFDF5; border-color: #A7F3D0; }
+.briefing-icon { width: 40px; height: 40px; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.briefing-status.complete .briefing-icon { background: #D1FAE5; }
+.briefing-status-text { font-size: 14px; font-weight: 600; }
+.briefing-status-sub { font-size: 12px; color: #86868B; }
+.upload-zone { border: 2px dashed #D2D2D7; border-radius: 12px; padding: 40px 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: #FAFAFA; }
+.upload-zone:hover { border-color: #1D1D1F; background: #F5F5F7; }
+.upload-zone.dragover { border-color: #1D1D1F; background: #F0F0F0; }
+.upload-zone-icon { width: 48px; height: 48px; margin: 0 auto 12px; background: #E5E5EA; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.upload-zone-text { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.upload-zone-hint { font-size: 12px; color: #86868B; }
+.upload-zone input { display: none; }
+.file-list { display: flex; flex-direction: column; gap: 10px; }
+.file-item { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 10px; background: #F9FAFB; border: 1px solid #E5E5EA; }
+.file-icon { width: 40px; height: 40px; border-radius: 8px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+.file-info { flex: 1; min-width: 0; }
+.file-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-meta { font-size: 11px; color: #86868B; }
+.file-actions { display: flex; gap: 6px; }
+.file-action-btn { width: 32px; height: 32px; border-radius: 6px; border: none; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+.file-action-btn:hover { background: #F0F0F0; }
+.agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.agent-card { padding: 16px; border-radius: 12px; background: #F9FAFB; border: 1px solid #E5E5EA; text-align: center; cursor: not-allowed; opacity: 0.6; }
+.agent-icon { width: 40px; height: 40px; border-radius: 10px; background: #E5E5EA; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 20px; }
+.agent-name { font-size: 13px; font-weight: 600; }
+.agent-desc { font-size: 11px; color: #86868B; margin-top: 4px; }
+.agent-badge { display: inline-block; margin-top: 8px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; background: #F3F4F6; color: #6B7280; }
+.toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 500; z-index: 2000; transform: translateY(80px); transition: all 0.3s; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.toast.show { transform: translateY(0); }
+.toast-success { background: #1D1D1F; color: #fff; }
+.toast-error { background: #DC2626; color: #fff; }
+.loading { display: inline-block; width: 16px; height: 16px; border: 2px solid #E5E5EA; border-top-color: #1D1D1F; border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.skeleton { background: linear-gradient(90deg, #F0F0F0 25%, #E5E5EA 50%, #F0F0F0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D2D2D7; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #86868B; }
+@media (max-width: 768px) {
+.sidebar { transform: translateX(-100%); }
+.main { margin-left: 0; padding: 20px; }
+.jobs-grid { grid-template-columns: 1fr; }
+.form-row { grid-template-columns: 1fr; }
+.detail-title-row { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="sidebar-header">
+<div class="sidebar-logo">
+<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="40" height="40" rx="10" fill="#1D1D1F"/>
+<circle cx="14" cy="20" r="3" fill="#A78BFA"/>
+<circle cx="26" cy="14" r="3" fill="#A78BFA"/>
+<circle cx="26" cy="26" r="3" fill="#A78BFA"/>
+<line x1="16.5" y1="18.5" x2="23.5" y2="15.5" stroke="#A78BFA" stroke-width="1.5"/>
+<line x1="16.5" y1="21.5" x2="23.5" y2="24.5" stroke="#A78BFA" stroke-width="1.5"/>
+</svg>
+CineFlux
+</div>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-section">Menu</div>
+<div class="nav-item active" data-page="jobs">
+<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+Meus Jobs
+</div>
+<div class="nav-item" data-page="feed">
+<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 5c7.18 0 13 5.82 13 13M6 11a7 7 0 017 7m-6 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+Feed de IA
+<span class="agent-badge" style="margin-left:auto;">Em breve</span>
+</div>
+<div class="nav-item" data-page="ppm">
+<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+PPM Builder
+<span class="agent-badge" style="margin-left:auto;">Em breve</span>
+</div>
+<div class="nav-section">Conta</div>
+<div class="nav-item" onclick="logout()">
+<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+Sair
+</div>
+</nav>
+<div class="sidebar-footer">
+<div class="user-info">
+<img class="user-avatar" id="userAvatar" src="" alt="">
+<div>
+<div class="user-name" id="userName">Carregando...</div>
+<div class="user-email" id="userEmail">...</div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main">
+<div id="jobsListView">
+<div class="page-header">
+<div>
+<h1 class="page-title">Meus Jobs</h1>
+<p class="page-subtitle" id="jobsCount">Carregando...</p>
+</div>
+<button class="btn-primary" onclick="openNewJobModal()">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+Novo Job
+</button>
+</div>
+<div class="filters">
+<div class="filter-chip active" data-filter="all" onclick="filterJobs('all')">Todos</div>
+<div class="filter-chip" data-filter="em_andamento" onclick="filterJobs('em_andamento')">Em andamento</div>
+<div class="filter-chip" data-filter="concluido" onclick="filterJobs('concluido')">Concluidos</div>
+<div class="filter-chip" data-filter="arquivado" onclick="filterJobs('arquivado')">Arquivados</div>
+</div>
+<div id="jobsContainer">
+<div class="jobs-grid" id="jobsGrid"></div>
+</div>
+</div>
+<div class="job-detail" id="jobDetailView">
+<div class="detail-header">
+<div class="detail-back" onclick="showJobsList()">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+Voltar aos jobs
+</div>
+<div class="detail-title-row">
+<div>
+<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+<span class="job-type-badge" id="detailTypeBadge">Filme</span>
+<span class="job-status" id="detailStatus"><span class="status-dot"></span><span id="detailStatusText">Em andamento</span></span>
+</div>
+<h1 class="detail-title" id="detailName">Nome do Job</h1>
+<p style="font-size:14px; color:#6E6E73; margin-top:4px;" id="detailClient">Cliente</p>
+</div>
+<div style="display:flex; gap:8px;">
+<button class="btn-secondary btn-small" onclick="editCurrentJob()">Editar</button>
+<button class="btn-danger btn-small" onclick="deleteCurrentJob()">Excluir</button>
+</div>
+</div>
+<div class="detail-meta" style="margin-top:16px;">
+<div class="detail-meta-item">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<span id="detailStartDate">--</span>
+</div>
+<div class="detail-meta-item">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span id="detailDeadline">--</span>
+</div>
+<div class="detail-meta-item">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+<span id="detailBudget">--</span>
+</div>
+</div>
+<p style="margin-top:12px; font-size:14px; color:#6E6E73; line-height:1.6;" id="detailDescription"></p>
+<div id="detailMilestones" style="margin-top:20px; display:none;">
+<div style="font-size:11px; font-weight:600; color:#86868B; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">Datas do Projeto</div>
+<div class="milestones" id="detailMilestonesRow" style="border-top:none; padding-top:0;"></div>
+</div>
+</div>
+<div class="section">
+<div class="section-header">
+<div>
+<div class="section-title">
+<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+Briefing Oficial
+</div>
+<div class="section-desc">Documento estruturado com os 6 pilares do projeto</div>
+</div>
+<button class="btn-primary btn-small" onclick="openBriefing()">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+Abrir Briefing
+</button>
+</div>
+<div class="briefing-status" id="briefingStatus">
+<div class="briefing-icon">📋</div>
+<div>
+<div class="briefing-status-text" id="briefingStatusText">Briefing nao iniciado</div>
+<div class="briefing-status-sub" id="briefingStatusSub">Clique em "Abrir Briefing" para comecar</div>
+</div>
+</div>
+</div>
+<div class="section">
+<div class="section-header">
+<div>
+<div class="section-title">
+<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+Roteiro
+</div>
+<div class="section-desc">Faca upload do roteiro em PDF, Word ou texto</div>
+</div>
+</div>
+<div class="upload-zone" id="uploadZone" onclick="document.getElementById('scriptFile').click()">
+<input type="file" id="scriptFile" accept=".pdf,.txt,.doc,.docx" onchange="handleFileSelect(event)">
+<div class="upload-zone-icon">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+</div>
+<div class="upload-zone-text">Clique para fazer upload do roteiro</div>
+<div class="upload-zone-hint">PDF, DOC, DOCX ou TXT (ate 50MB)</div>
+</div>
+<div class="file-list" id="fileList" style="margin-top:16px; display:none;"></div>
+</div>
+<div class="section">
+<div class="section-header">
+<div>
+<div class="section-title">
+<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+Agentes de IA
+</div>
+<div class="section-desc">Ferramentas inteligentes para seu projeto (em breve)</div>
+</div>
+</div>
+<div class="agents-grid">
+<div class="agent-card"><div class="agent-icon">[S]</div><div class="agent-name">Scriptor</div><div class="agent-desc">Analise de roteiro</div><span class="agent-badge">Fase 2</span></div>
+<div class="agent-card"><div class="agent-icon">[V]</div><div class="agent-name">Vitrine</div><div class="agent-desc">Direcao de arte</div><span class="agent-badge">Fase 2</span></div>
+<div class="agent-card"><div class="agent-icon">[M]</div><div class="agent-name">Marco</div><div class="agent-desc">Scouting de locacoes</div><span class="agent-badge">Fase 2</span></div>
+<div class="agent-card"><div class="agent-icon">[P]</div><div class="agent-name">PPM Builder</div><div class="agent-desc">Planejamento de producao</div><span class="agent-badge">Fase 3</span></div>
+<div class="agent-card"><div class="agent-icon">[T]</div><div class="agent-name">Tech Scout</div><div class="agent-desc">Lista tecnica de equipamentos</div><span class="agent-badge">Fase 3</span></div>
+<div class="agent-card"><div class="agent-icon">[O]</div><div class="agent-name">Ordem do Dia</div><div class="agent-desc">Agenda de filmagem</div><span class="agent-badge">Fase 3</span></div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<div class="modal-overlay" id="newJobModal">
+<div class="modal">
+<div class="modal-header">
+<h2 class="modal-title" id="modalTitle">Novo Job</h2>
+<button class="modal-close" onclick="closeModal()">&times;</button>
+</div>
+<div class="modal-body">
+<form id="newJobForm">
+<div class="form-group">
+<label class="form-label">Nome do projeto *</label>
+<input type="text" class="form-input" id="jobName" placeholder="Ex: Campanha Verao 2025" required>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">Tipo</label>
+<select class="form-select" id="jobType">
+<option value="">Selecione...</option>
+<option value="filme">Filme</option>
+<option value="serie">Serie</option>
+<option value="publicidade">Publicidade</option>
+<option value="corporativo">Corporativo</option>
+<option value="musical">Clip Musical</option>
+<option value="documentario">Documentario</option>
+<option value="evento">Evento ao Vivo</option>
+<option value="outro">Outro</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">Cliente / Marca</label>
+<input type="text" class="form-input" id="jobClient" placeholder="Ex: Nike Brasil">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Descricao</label>
+<textarea class="form-textarea" id="jobDescription" placeholder="Descreva o projeto..."></textarea>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">Data de inicio</label>
+<input type="date" class="form-input" id="jobStartDate">
+</div>
+<div class="form-group">
+<label class="form-label">Data de entrega</label>
+<input type="date" class="form-input" id="jobDeadline">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Orcamento <span>(R$)</span></label>
+<input type="number" class="form-input" id="jobBudget" placeholder="0,00" step="0.01" min="0">
+</div>
+<div style="margin: 24px 0 12px;">
+<label class="form-label">Datas Principais do Projeto</label>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label"><span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#FEE2E2;border:2px solid #EF4444;display:inline-block;"></span>PPM Agencia</span></label>
+<input type="date" class="form-input" id="jobPpmAgencia">
+</div>
+<div class="form-group">
+<label class="form-label"><span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#FEE2E2;border:2px solid #EF4444;display:inline-block;"></span>PPM Cliente</span></label>
+<input type="date" class="form-input" id="jobPpmCliente">
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label"><span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#FEF3C7;border:2px solid #F59E0B;display:inline-block;"></span>Filmagem</span></label>
+<input type="date" class="form-input" id="jobFilmagem">
+</div>
+<div class="form-group">
+<label class="form-label"><span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#D1FAE5;border:2px solid #10B981;display:inline-block;"></span>Online (Entrega)</span></label>
+<input type="date" class="form-input" id="jobOnline">
+</div>
+</div>
+</form>
+</div>
+<div class="modal-footer">
+<button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+<button class="btn-primary" onclick="saveJob()" id="saveJobBtn">
+<span id="saveBtnText">Criar Job</span>
+</button>
+</div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+let currentUser = null;
+let jobs = [];
+let currentFilter = 'all';
+let currentJobId = null;
+const API_BASE = window.location.origin.includes('localhost') ? 'http://localhost:3000' : '';
+async function checkAuth() {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/me`, { credentials: 'include' });
+    const data = await res.json();
+    if (data.authenticated) {
+      currentUser = data.user;
+      document.getElementById('userName').textContent = data.user.name || 'Usuario';
+      document.getElementById('userEmail').textContent = data.user.email || '';
+      document.getElementById('userAvatar').src = data.user.avatar || '';
+      return true;
+    }
+  } catch (e) {}
+  return false;
+}
+function logout() {
+  fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include' })
+    .then(() => window.location.href = '/');
+}
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast toast-${type} show`;
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+async function loadJobs() {
+  try {
+    const res = await fetch(`${API_BASE}/api/jobs`, { credentials: 'include' });
+    const data = await res.json();
+    if (data.success) {
+      jobs = data.jobs;
+      renderJobs();
+    }
+  } catch (err) {
+    showToast('Erro ao carregar jobs', 'error');
+  }
+}
+function filterJobs(filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === filter));
+  renderJobs();
+}
+function renderMilestones(job) {
+  let m = {};
+  try { m = JSON.parse(job.brand_colors || '{}'); } catch(e) {}
+  const ppmAgencia = m.ppm_agencia;
+  const ppmCliente = m.ppm_cliente;
+  const filmagem = m.filmagem;
+  const online = m.online;
+  const hasAny = ppmAgencia || ppmCliente || filmagem || online;
+  if (!hasAny) return '';
+  let html = '<div class="milestones">';
+  if (ppmAgencia) {
+    html += `<div class="milestone milestone-ppm"><div class="milestone-dot" title="PPM Agencia: ${formatDate(ppmAgencia)}"></div><div class="milestone-label">PPM Ag</div><div class="milestone-date">${formatShortDate(ppmAgencia)}</div></div>`;
+  } else {
+    html += `<div class="milestone milestone-empty"><div class="milestone-dot"></div><div class="milestone-label">PPM Ag</div></div>`;
+  }
+  if (ppmCliente) {
+    html += `<div class="milestone milestone-ppm"><div class="milestone-dot" title="PPM Cliente: ${formatDate(ppmCliente)}"></div><div class="milestone-label">PPM Cli</div><div class="milestone-date">${formatShortDate(ppmCliente)}</div></div>`;
+  } else {
+    html += `<div class="milestone milestone-empty"><div class="milestone-dot"></div><div class="milestone-label">PPM Cli</div></div>`;
+  }
+  if (filmagem) {
+    html += `<div class="milestone milestone-filmagem"><div class="milestone-dot" title="Filmagem: ${formatDate(filmagem)}"></div><div class="milestone-label">Filmagem</div><div class="milestone-date">${formatShortDate(filmagem)}</div></div>`;
+  } else {
+    html += `<div class="milestone milestone-empty"><div class="milestone-dot"></div><div class="milestone-label">Filmagem</div></div>`;
+  }
+  if (online) {
+    html += `<div class="milestone milestone-online"><div class="milestone-dot" title="Online: ${formatDate(online)}"></div><div class="milestone-label">Online</div><div class="milestone-date">${formatShortDate(online)}</div></div>`;
+  } else {
+    html += `<div class="milestone milestone-empty"><div class="milestone-dot"></div><div class="milestone-label">Online</div></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+function formatShortDate(dateStr) {
+  if (!dateStr) return '--';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+}
+function formatDate(dateStr) {
+  if (!dateStr) return '--';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function renderJobs() {
+  const grid = document.getElementById('jobsGrid');
+  const filtered = currentFilter === 'all' ? jobs : jobs.filter(j => j.status === currentFilter);
+  document.getElementById('jobsCount').textContent = filtered.length + ' projeto' + (filtered.length !== 1 ? 's' : '');
+  if (jobs.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><div class="empty-state-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#86868B" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div><div class="empty-state-title">Nenhum job ainda</div><div class="empty-state-text">Crie seu primeiro projeto para comecar</div><button class="btn-primary" onclick="openNewJobModal()">Criar Primeiro Job</button></div>';
+    return;
+  }
+  let html = '';
+  filtered.forEach(job => {
+    const typeClass = 'job-type-' + (job.type || 'default');
+    const typeLabels = { filme: 'Filme', serie: 'Serie', publicidade: 'Publicidade', corporativo: 'Corporativo', musical: 'Musical', documentario: 'Documentario', evento: 'Evento' };
+    const typeLabel = typeLabels[job.type] || (job.type || 'Projeto');
+    const statusClass = 'status-' + (job.status || 'em_andamento');
+    const statusLabels = { em_andamento: 'Em andamento', concluido: 'Concluido', arquivado: 'Arquivado' };
+    const statusLabel = statusLabels[job.status] || job.status;
+    const deadline = job.deadline ? formatDate(job.deadline) : 'Sem prazo';
+    html += '<div class="job-card" onclick="openJob(' + job.id + ')"><div class="job-card-header"><span class="job-type-badge ' + typeClass + '">' + typeLabel + '</span><span class="job-status ' + statusClass + '"><span class="status-dot"></span>' + statusLabel + '</span></div><div class="job-name">' + escapeHtml(job.name) + '</div>' + (job.client ? '<div class="job-client">' + escapeHtml(job.client) + '</div>' : '') + '<div class="job-description">' + (job.description ? escapeHtml(job.description) : '<span style="color:#C7C7CC;">Sem descricao</span>') + '</div><div class="job-meta"><div class="job-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + deadline + '</div></div>' + renderMilestones(job) + '<div class="job-actions" onclick="event.stopPropagation()"><button class="btn-secondary btn-small" onclick="openBriefingForJob(' + job.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Briefing</button><button class="btn-secondary btn-small" onclick="openJob(' + job.id + ')">Abrir<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div></div>';
+  });
+  html += '<div class="new-job-card" onclick="openNewJobModal()"><div class="new-job-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#86868B" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div class="new-job-text">Criar novo job</div></div>';
+  grid.innerHTML = html;
+}
+function openNewJobModal() {
+  document.getElementById('newJobForm').reset();
+  document.getElementById('newJobModal').classList.add('active');
+  document.getElementById('saveBtnText').textContent = 'Criar Job';
+  document.getElementById('newJobModal').dataset.editId = '';
+}
+function closeModal() {
+  document.getElementById('newJobModal').classList.remove('active');
+}
+async function saveJob() {
+  const name = document.getElementById('jobName').value.trim();
+  if (!name) { showToast('Nome do projeto e obrigatorio', 'error'); return; }
+  const btn = document.getElementById('saveJobBtn');
+  btn.disabled = true;
+  document.getElementById('saveBtnText').innerHTML = '<span class="loading"></span>';
+  const editId = document.getElementById('newJobModal').dataset.editId;
+  const milestones = {};
+  if (document.getElementById('jobPpmAgencia').value) milestones.ppm_agencia = document.getElementById('jobPpmAgencia').value;
+  if (document.getElementById('jobPpmCliente').value) milestones.ppm_cliente = document.getElementById('jobPpmCliente').value;
+  if (document.getElementById('jobFilmagem').value) milestones.filmagem = document.getElementById('jobFilmagem').value;
+  if (document.getElementById('jobOnline').value) milestones.online = document.getElementById('jobOnline').value;
+  const payload = {
+    name: name,
+    type: document.getElementById('jobType').value || null,
+    description: document.getElementById('jobDescription').value || null,
+    client: document.getElementById('jobClient').value || null,
+    start_date: document.getElementById('jobStartDate').value || null,
+    deadline: document.getElementById('jobDeadline').value || null,
+    budget: document.getElementById('jobBudget').value || null,
+    brand_colors: Object.keys(milestones).length > 0 ? milestones : null,
+  };
+  try {
+    const url = editId ? (API_BASE + '/api/jobs/' + editId) : (API_BASE + '/api/jobs');
+    const method = editId ? 'PUT' : 'POST';
+    const res = await fetch(url, { method: method, headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.success) {
+      showToast(editId ? 'Job atualizado!' : 'Job criado com sucesso!');
+      closeModal();
+      await loadJobs();
+      if (editId) openJob(editId);
+    } else {
+      showToast(data.error || 'Erro ao salvar', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexao', 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('saveBtnText').textContent = editId ? 'Salvar Alteracoes' : 'Criar Job';
+  }
+}
+async function openJob(jobId) {
+  currentJobId = jobId;
+  try {
+    const res = await fetch(API_BASE + '/api/jobs/' + jobId, { credentials: 'include' });
+    const data = await res.json();
+    if (!data.success) { showToast('Job nao encontrado', 'error'); return; }
+    const job = data.job;
+    document.getElementById('detailName').textContent = job.name;
+    document.getElementById('detailClient').textContent = job.client || 'Sem cliente definido';
+    document.getElementById('detailDescription').textContent = job.description || 'Sem descricao.';
+    document.getElementById('detailStartDate').textContent = job.start_date ? formatDate(job.start_date) : 'Nao definida';
+    document.getElementById('detailDeadline').textContent = job.deadline ? formatDate(job.deadline) : 'Nao definida';
+    document.getElementById('detailBudget').textContent = job.budget ? ('R$ ' + parseFloat(job.budget).toLocaleString('pt-BR', {minimumFractionDigits: 2})) : 'Nao definido';
+    const typeLabels = { filme: 'Filme', serie: 'Serie', publicidade: 'Publicidade', corporativo: 'Corporativo', musical: 'Musical', documentario: 'Documentario', evento: 'Evento' };
+    document.getElementById('detailTypeBadge').textContent = typeLabels[job.type] || (job.type || 'Projeto');
+    document.getElementById('detailTypeBadge').className = 'job-type-badge job-type-' + (job.type || 'default');
+    const statusLabels = { em_andamento: 'Em andamento', concluido: 'Concluido', arquivado: 'Arquivado' };
+    document.getElementById('detailStatus').className = 'job-status status-' + (job.status || 'em_andamento');
+    document.getElementById('detailStatusText').textContent = statusLabels[job.status] || job.status;
+    renderDetailMilestones(job);
+    await checkBriefingStatus(jobId);
+    await loadScripts(jobId);
+    document.getElementById('jobsListView').style.display = 'none';
+    document.getElementById('jobDetailView').classList.add('active');
+    window.scrollTo(0, 0);
+  } catch (err) {
+    showToast('Erro ao carregar job', 'error');
+  }
+}
+function renderDetailMilestones(job) {
+  let m = {};
+  try { m = JSON.parse(job.brand_colors || '{}'); } catch(e) {}
+  const hasAny = m.ppm_agencia || m.ppm_cliente || m.filmagem || m.online;
+  const container = document.getElementById('detailMilestones');
+  if (!hasAny) { container.style.display = 'none'; return; }
+  container.style.display = 'block';
+  let html = '';
+  if (m.ppm_agencia) {
+    html += '<div class="milestone milestone-ppm"><div class="milestone-dot"></div><div class="milestone-label">PPM Agencia</div><div class="milestone-date">' + formatShortDate(m.ppm_agencia) + '</div></div>';
+  }
+  if (m.ppm_cliente) {
+    html += '<div class="milestone milestone-ppm"><div class="milestone-dot"></div><div class="milestone-label">PPM Cliente</div><div class="milestone-date">' + formatShortDate(m.ppm_cliente) + '</div></div>';
+  }
+  if (m.filmagem) {
+    html += '<div class="milestone milestone-filmagem"><div class="milestone-dot"></div><div class="milestone-label">Filmagem</div><div class="milestone-date">' + formatShortDate(m.filmagem) + '</div></div>';
+  }
+  if (m.online) {
+    html += '<div class="milestone milestone-online"><div class="milestone-dot"></div><div class="milestone-label">Online</div><div class="milestone-date">' + formatShortDate(m.online) + '</div></div>';
+  }
+  document.getElementById('detailMilestonesRow').innerHTML = html;
+}
+function showJobsList() {
+  document.getElementById('jobDetailView').classList.remove('active');
+  document.getElementById('jobsListView').style.display = 'block';
+  currentJobId = null;
+  loadJobs();
+}
+function editCurrentJob() {
+  if (!currentJobId) return;
+  const job = jobs.find(j => j.id == currentJobId);
+  if (!job) return;
+  document.getElementById('jobName').value = job.name || '';
+  document.getElementById('jobType').value = job.type || '';
+  document.getElementById('jobClient').value = job.client || '';
+  document.getElementById('jobDescription').value = job.description || '';
+  document.getElementById('jobStartDate').value = job.start_date ? job.start_date.split('T')[0] : '';
+  document.getElementById('jobDeadline').value = job.deadline ? job.deadline.split('T')[0] : '';
+  document.getElementById('jobBudget').value = job.budget || '';
+  let m = {};
+  try { m = JSON.parse(job.brand_colors || '{}'); } catch(e) {}
+  document.getElementById('jobPpmAgencia').value = m.ppm_agencia || '';
+  document.getElementById('jobPpmCliente').value = m.ppm_cliente || '';
+  document.getElementById('jobFilmagem').value = m.filmagem || '';
+  document.getElementById('jobOnline').value = m.online || '';
+  document.getElementById('newJobModal').dataset.editId = currentJobId;
+  document.getElementById('saveBtnText').textContent = 'Salvar Alteracoes';
+  document.getElementById('newJobModal').classList.add('active');
+}
+async function deleteCurrentJob() {
+  if (!currentJobId) return;
+  if (!confirm('Tem certeza que deseja excluir este job?')) return;
+  try {
+    const res = await fetch(API_BASE + '/api/jobs/' + currentJobId, { method: 'DELETE', credentials: 'include' });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Job excluido com sucesso');
+      showJobsList();
+    } else {
+      showToast(data.error || 'Erro ao excluir', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexao', 'error');
+  }
+}
+async function checkBriefingStatus(jobId) {
+  try {
+    const res = await fetch(API_BASE + '/api/briefings/' + jobId, { credentials: 'include' });
+    const data = await res.json();
+    const el = document.getElementById('briefingStatus');
+    const titleEl = document.getElementById('briefingStatusText');
+    const subEl = document.getElementById('briefingStatusSub');
+    if (data.briefing) {
+      const hasContent = data.briefing.objetivo || data.briefing.narrativa || data.briefing.elenco;
+      if (hasContent) {
+        el.classList.add('complete');
+        el.querySelector('.briefing-icon').textContent = 'OK';
+        titleEl.textContent = 'Briefing preenchido';
+        subEl.textContent = 'Clique em "Abrir Briefing" para editar';
+      } else {
+        el.classList.remove('complete');
+        el.querySelector('.briefing-icon').textContent = '!';
+        titleEl.textContent = 'Briefing iniciado';
+        subEl.textContent = 'Preencha as informacoes do projeto';
+      }
+    } else {
+      el.classList.remove('complete');
+      el.querySelector('.briefing-icon').textContent = '!';
+      titleEl.textContent = 'Briefing nao iniciado';
+      subEl.textContent = 'Clique em "Abrir Briefing" para comecar';
+    }
+  } catch (e) {}
+}
+function openBriefing() {
+  if (!currentJobId) return;
+  window.open('/briefing.html?jobId=' + currentJobId, '_blank');
+}
+function openBriefingForJob(jobId) {
+  event.stopPropagation();
+  window.open('/briefing.html?jobId=' + jobId, '_blank');
+}
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => { e.preventDefault(); uploadZone.classList.remove('dragover'); const files = e.dataTransfer.files; if (files.length > 0) uploadScript(files[0]); });
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) uploadScript(file);
+}
+async function uploadScript(file) {
+  if (!currentJobId) return;
+  const allowed = ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|txt|doc|docx)$/i)) {
+    showToast('Tipo de arquivo nao suportado. Use PDF, TXT, DOC ou DOCX.', 'error');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('script', file);
+  uploadZone.innerHTML = '<div class="loading"></div><div style="margin-top:12px; font-size:14px;">Enviando...</div>';
+  try {
+    const res = await fetch(API_BASE + '/api/jobs/' + currentJobId + '/scripts', { method: 'POST', credentials: 'include', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Roteiro enviado com sucesso!');
+      await loadScripts(currentJobId);
+    } else {
+      showToast(data.error || 'Erro ao enviar', 'error');
+    }
+  } catch (err) {
+    showToast('Erro de conexao', 'error');
+  } finally {
+    uploadZone.innerHTML = '<input type="file" id="scriptFile" accept=".pdf,.txt,.doc,.docx" onchange="handleFileSelect(event)"><div class="upload-zone-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="upload-zone-text">Clique para fazer upload do roteiro</div><div class="upload-zone-hint">PDF, DOC, DOCX ou TXT (ate 50MB)</div>';
+  }
+}
+async function loadScripts(jobId) {
+  try {
+    const res = await fetch(API_BASE + '/api/jobs/' + jobId + '/scripts', { credentials: 'include' });
+    const data = await res.json();
+    const list = document.getElementById('fileList');
+    if (data.success && data.scripts.length > 0) {
+      list.style.display = 'flex';
+      list.innerHTML = data.scripts.map(s => '<div class="file-item"><div class="file-icon">' + getFileIcon(s.mime_type) + '</div><div class="file-info"><div class="file-name">' + escapeHtml(s.original_filename) + '</div><div class="file-meta">' + formatFileSize(s.file_size) + ' - ' + formatDate(s.created_at) + '</div></div><div class="file-actions"><button class="file-action-btn" onclick="downloadScript(' + s.id + ')" title="Download"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button><button class="file-action-btn" onclick="deleteScript(' + s.id + ')" title="Excluir" style="color:#DC2626;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>').join('');
+    } else {
+      list.style.display = 'none';
+    }
+  } catch (e) {}
+}
+async function downloadScript(scriptId) {
+  window.open(API_BASE + '/api/scripts/' + scriptId + '/download', '_blank');
+}
+async function deleteScript(scriptId) {
+  if (!confirm('Excluir este roteiro?')) return;
+  try {
+    const res = await fetch(API_BASE + '/api/scripts/' + scriptId, { method: 'DELETE', credentials: 'include' });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Roteiro excluido');
+      await loadScripts(currentJobId);
+    }
+  } catch (e) {
+    showToast('Erro ao excluir', 'error');
+  }
+}
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+function formatFileSize(bytes) {
+  if (!bytes) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+function getFileIcon(mime) {
+  if (mime === 'application/pdf') return 'PDF';
+  if (mime && mime.includes('word')) return 'DOC';
+  if (mime && mime.startsWith('text/')) return 'TXT';
+  return 'FILE';
+}
+async function init() {
+ // TEMPORÁRIO: Login desativado até Google OAuth ser recriado
+const isAuth = true; // await checkAuth();
+// if (!isAuth) {
+//     window.location.href = '/';
+//     return;
+// }
+  await loadJobs();
+}
+document.getElementById('newJobModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('newJobModal')) closeModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+init();
+</script>
+</body>
+</html>

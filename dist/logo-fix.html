@@ -1,0 +1,26 @@
+<script>
+(function(){
+  var i = setInterval(function(){
+    var h = document.querySelector("header");
+    if(!h) return;
+    var a = h.querySelector("a");
+    if(!a) return;
+    var s = a.querySelector("svg");
+    if(!s) return;
+    clearInterval(i);
+    s.style.display = "none";
+    var d = s.parentElement;
+    if(d && d !== a) d.style.display = "none";
+    var sp = a.querySelectorAll("span");
+    for(var j = 0; j < sp.length; j++) sp[j].style.display = "none";
+    if(a.querySelector('img[data-logo]')) return;
+    var img = document.createElement("img");
+    img.src = "/cineflux_logo.png?v=17";
+    img.alt = "CineFlux";
+    img.setAttribute("data-logo", "1");
+    img.style.cssText = "height:32px;width:auto;display:block";
+    a.insertBefore(img, a.firstChild);
+  }, 200);
+  setTimeout(function(){ clearInterval(i); }, 8000);
+})();
+</script>

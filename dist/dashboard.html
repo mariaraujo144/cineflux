@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineFlux Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,sans-serif;background:#f8f9fa;color:#1a1a1a}
+.sidebar{position:fixed;left:0;top:0;width:260px;height:100vh;background:#fff;border-right:1px solid #e5e7eb;padding:24px 0;z-index:100}
+.brand{display:flex;align-items:center;gap:10px;padding:0 24px 24px;border-bottom:1px solid #f3f4f6;margin-bottom:16px;font-weight:700;font-size:18px;text-decoration:none;color:#1a1a1a}
+.nav-item{display:block;padding:12px 16px;margin:0 8px;border-radius:8px;color:#6b7280;font-size:14px;text-decoration:none;transition:all .2s;cursor:pointer}
+.nav-item:hover{background:#f8f9fa;color:#1a1a1a}
+.nav-item.active{background:#f8f9fa;color:#1a1a1a;font-weight:600}
+.main{margin-left:260px;padding:40px 48px;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px}
+.header h1{font-size:36px;font-weight:700;margin-bottom:6px}
+.btn{background:#111827;color:#fff;border:none;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{background:#374151}
+.grid{display:grid;grid-template-columns:1fr 320px;gap:32px}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#9ca3af;margin-bottom:20px}
+.agent-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:16px;cursor:pointer;transition:all .2s;text-decoration:none;display:block;color:inherit}
+.agent-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);transform:translateY(-2px)}
+.agent-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.agent-icon{width:40px;height:40px;border-radius:8px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:20px}
+.agent-name{font-size:16px;font-weight:700}
+.agent-desc{font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:12px}
+.agent-tags{display:flex;flex-wrap:wrap;gap:6px}
+.agent-tag{font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;background:#f8f9fa;color:#6b7280;border:1px solid #e5e7eb}
+.quick-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:28px;text-align:center;margin-bottom:16px;cursor:pointer;transition:all .2s;text-decoration:none;display:block;color:inherit}
+.quick-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.quick-icon{width:48px;height:48px;border-radius:12px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:#6b7280;font-size:24px}
+.quick-title{font-size:16px;font-weight:700}
+.quick-sub{font-size:12px;color:#9ca3af;margin-top:4px}
+.mobile-menu{display:none;position:fixed;top:0;left:0;right:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 16px;z-index:101;align-items:center;justify-content:space-between}
+.mobile-menu-btn{background:none;border:none;font-size:24px;cursor:pointer}
+.mobile-nav{display:none;position:fixed;top:56px;left:0;right:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:8px;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.mobile-nav .nav-item{margin:4px 0}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:80px 24px 24px}.grid{grid-template-columns:1fr}.mobile-menu{display:flex}}
+</style>
+</head>
+<body>
+<div class="mobile-menu"><div style="font-weight:700;font-size:18px">🎬 CineFlux</div><button class="mobile-menu-btn" onclick="document.getElementById('mobileNav').style.display=document.getElementById('mobileNav').style.display==='block'?'none':'block'">☰</button></div>
+<div class="mobile-nav" id="mobileNav"><a href="/dashboard.html" class="nav-item active">Dashboard</a><a href="/jobs.html" class="nav-item">Jobs</a><a href="/scriptor-v2.html" class="nav-item">Agentes</a><a href="/briefing.html" class="nav-item">Briefing</a><a href="/login.html" class="nav-item">Login</a></div>
+<aside class="sidebar"><a href="/dashboard.html" class="brand">🎬 CineFlux</a><div style="padding:0 8px"><a href="/dashboard.html" class="nav-item active">Dashboard</a><a href="/jobs.html" class="nav-item">Jobs</a><a href="/scriptor-v2.html" class="nav-item">Agentes → Scriptor</a><a href="/briefing.html" class="nav-item">Briefing</a><a href="/login.html" class="nav-item">Login / Conta</a></div></aside>
+<main class="main"><div class="header"><div><h1>Olá, Mari</h1><p style="color:#6b7280">Plano <strong style="color:#1a1a1a">Studio</strong> ativo</p></div><a href="/jobs.html" class="btn">+ JOB</a></div>
+<div class="grid"><div><div class="section-title">Agentes</div>
+<a href="/scriptor-v2.html" class="agent-card"><div class="agent-header"><div class="agent-icon">📝</div><div class="agent-name">Scriptor</div></div><div class="agent-desc">Roteiro → Briefing = Decupagem automática do roteiro em cenas, locações, elenco, objetos e figurino</div><div class="agent-tags"><span class="agent-tag">Roteiro</span><span class="agent-tag">Briefing</span><span class="agent-tag">Decupagem</span></div></a>
+<a href="/jobs.html?tab=producao" class="agent-card"><div class="agent-header"><div class="agent-icon">🎬</div><div class="agent-name">Produção</div></div><div class="agent-desc">Sites internos para organização de Arte, Figurino, Foto e Post</div><div class="agent-tags"><span class="agent-tag">Arte</span><span class="agent-tag">Figurino</span><span class="agent-tag">Foto</span><span class="agent-tag">Post</span></div></a>
+<a href="/jobs.html?tab=vitrine" class="agent-card"><div class="agent-header"><div class="agent-icon">✨</div><div class="agent-name">Vitrine</div></div><div class="agent-desc">Sites para aprovação com a direção. CRIAÇÃO = shooting, fotografia, direção de arte, locação. ELENCO + FIGURINO</div><div class="agent-tags"><span class="agent-tag">Criação</span><span class="agent-tag">Elenco</span><span class="agent-tag">Figurino</span></div></a>
+<div class="agent-card" style="opacity:0.6;cursor:not-allowed"><div class="agent-header"><div class="agent-icon">📊</div><div class="agent-name">PPM Builder</div></div><div class="agent-desc">Geração automática de slides PPM + site completo (em breve)</div><div class="agent-tags"><span class="agent-tag">Slides</span><span class="agent-tag">Site</span></div></div>
+<div class="agent-card" style="opacity:0.6;cursor:not-allowed"><div class="agent-header"><div class="agent-icon">🔍</div><div class="agent-name">Tech Scout</div></div><div class="agent-desc">Planejamento de locação com fotos, horários e logística (em breve)</div><div class="agent-tags"><span class="agent-tag">Locação</span><span class="agent-tag">Horários</span></div></div>
+<div class="agent-card" style="opacity:0.6;cursor:not-allowed"><div class="agent-header"><div class="agent-icon">⏰</div><div class="agent-name">Ordem do Dia</div></div><div class="agent-desc">Cronograma de filmagem, divisão por cenas e horários (em breve)</div><div class="agent-tags"><span class="agent-tag">Cronograma</span><span class="agent-tag">Cenas</span></div></div>
+<div class="agent-card" style="opacity:0.6;cursor:not-allowed"><div class="agent-header"><div class="agent-icon">🎞️</div><div class="agent-name">Post</div></div><div class="agent-desc">Consolidação para pós-produção (em breve)</div><div class="agent-tags"><span class="agent-tag">Pós-Produção</span></div></div>
+</div><div><div class="section-title">Acesso Rápido</div>
+<a href="/jobs.html" class="quick-card"><div class="quick-icon">📦</div><div class="quick-title">JOBS</div><div class="quick-sub">Gerenciar jobs</div></a>
+<a href="/scriptor-v2.html" class="quick-card"><div class="quick-icon">💬</div><div class="quick-title">FEED</div><div class="quick-sub">Comunicação</div></a>
+<a href="/scriptor-v2.html" class="quick-card"><div class="quick-icon">🤖</div><div class="quick-title">BOB</div><div class="quick-sub">Agente central</div></a>
+</div></div></main>
+</body></html>
