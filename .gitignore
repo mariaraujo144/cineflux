@@ -1,0 +1,12 @@
+node_modules/
+.env
+*.tar.gz
+dist-backup-*/
+dist-old-*/
+*.backup
+*.backup.*
+*.backup2
+0
+server-v2.cjs
+vitrine-backend.js
+/tmp
